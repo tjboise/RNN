@@ -15,3 +15,4 @@ pytorch
 
 
 ## Result
+compare some models: RNN, LSTM, MLP
