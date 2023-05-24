@@ -5,10 +5,12 @@ references: https://drive.google.com/drive/folders/1Kw7P4B-bj5MVt_pr8AEQhUe3BIND
 
 ## Data
 
-LTPP
+LTPP: https://infopave.fhwa.dot.gov/
 
+1. what inputs do we need? 
 
 ## Model
+pytorch
 
 
 
