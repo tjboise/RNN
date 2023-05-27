@@ -2,7 +2,7 @@
 
 Deadline: July 1st.
 
-Details: https://infopave.fhwa.dot.gov/Reports/LtppDataContest
+Student Competition Details: https://infopave.fhwa.dot.gov/Reports/LtppDataContest
 
 Pirpose: use RNN to predict IRI
 
