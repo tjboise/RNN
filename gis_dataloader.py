@@ -4,8 +4,10 @@ import os
 import tqdm
 import pandas as pd
 
-# URL to the ArcGIS REST service you want to access
-
+"""
+This script downloads state-level data from the US Department of Transportation's
+Database on road safety. The data is stored in the data/ directory as JSON files.
+"""
 
 def get_data_for_state(state):
     url = f'https://geo.dot.gov/server/rest/services/Hosted/{state}_2018_PR/FeatureServer/0/query'
@@ -26,6 +28,7 @@ def get_data_for_state(state):
         data = json.loads(response.content)
     else:
         print(f'Request failed with status code {response.status_code}')
+        return
 
     with open(f'data/{state}.json', 'w') as f:
         json.dump(data, f)
