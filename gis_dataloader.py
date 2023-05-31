@@ -2,7 +2,6 @@ import requests
 import json
 import os
 import tqdm
-import pandas as pd
 
 """
 This script downloads state-level data from the US Department of Transportation's
