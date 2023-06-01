@@ -8,7 +8,7 @@ Pirpose: use RNN to predict IRI
 
 References: https://drive.google.com/drive/folders/1Kw7P4B-bj5MVt_pr8AEQhUe3BINDGKOC
 
-[Schedule](./schedule.md)
+[Project Schedule](./schedule.md)
 
 ## Data
 
