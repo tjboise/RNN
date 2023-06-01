@@ -19,7 +19,7 @@ Parameters:
 
 **IRI<sub>0</sub>**  : The initial IRI, which is the IRI measured immediately after construction. This parameter denotes the quality of construction and was reported in many studies to significantly affect the progression of IRI with age.
 
-**AADT,pavement age, alligator, longitudinal and transverse cracks, standard deviation of rutting, and subgrade plasticity index variables**
+**IRI<sub>0</sub>, AADT,  cracks, rutting, participation, temperature, change of temperature, maintenance (one-hot)**
 
 Predict:
 
