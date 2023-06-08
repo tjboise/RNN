@@ -1,18 +1,19 @@
 # RNN-IRI
 
-Deadline: July 1st.
+Deadline: Aug 1st.
 
-Student Competition Details: https://infopave.fhwa.dot.gov/Reports/LtppDataContest
+[Student Competition Details](https://infopave.fhwa.dot.gov/Reports/LtppDataContest)
 
-Pirpose: use RNN to predict IRI
 
-References: https://drive.google.com/drive/folders/1Kw7P4B-bj5MVt_pr8AEQhUe3BINDGKOC
+[References](https://drive.google.com/drive/folders/1Kw7P4B-bj5MVt_pr8AEQhUe3BINDGKOC)
 
 [Project Schedule](./schedule.md)
 
+[Paper Writing](https://docs.google.com/document/d/1ej3aIgXhci1MoVNrvUFgNPYzbM2bNJzK/edit?usp=sharing&ouid=107909472107329344864&rtpof=true&sd=true)
+
 ## Data
 
-LTPP: https://infopave.fhwa.dot.gov/
+[LTPP](https://infopave.fhwa.dot.gov/)
 
 1. what inputs do we need? 
 
