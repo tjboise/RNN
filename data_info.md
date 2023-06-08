@@ -55,10 +55,6 @@ Then the server was started with the following command:
 ```bash
 docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<A_PASSWORD_HERE>' -p 1433:1433 --name sql_server -d mcr.microsoft.com/mssql/server:2019-latest
 ```
-Then the .bak files were copied to the container:
-```bash
-docker cp <FILE_NAME> sql_server:/var/opt/mssql/data
-```
 Then the .bak files were restored using SSMS.
 
 The restored database was used to load the data into Pandas dataframes. The dataframes were then saved as Parquet Files
