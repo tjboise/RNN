@@ -1,9 +1,9 @@
 # Preliminary Schedule
 
 # 6/8/2023
-- [ ] Data Preprocessing
-- [ ] Data Selection
-- [ ] Data Download Procedure (md)
+- [x] Data Preprocessing
+- [x] Data Selection
+- [x] Data Download Procedure (md)
 
 # 6/15/2023
 - [ ] Implement Model (PyTorch 2)
