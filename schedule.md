@@ -6,11 +6,12 @@
 - [x] Data Download Procedure (md)
 
 # 6/15/2023
-- [ ] Implement Model (PyTorch 2)
-- [ ] Run Preliminary Training
-- [ ] Some form of evaluation / results
+- [x] Implement Model (PyTorch 2)
+- [x] Run Preliminary Training
+- [x] Some form of evaluation / results
 
 # 6/22/2023
+- [ ] The final CSV
 - [ ] Prepare other models
 - [ ] Compare
 - [ ] Hyperparameter Tuning
