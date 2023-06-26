@@ -15,23 +15,19 @@ Deadline: Aug 1st.
 
 [LTPP](https://infopave.fhwa.dot.gov/)
 
-1. what inputs do we need? 
-
-
 Parameters: 
 
 **IRI<sub>0</sub>**  : The initial IRI, which is the IRI measured immediately after construction. This parameter denotes the quality of construction and was reported in many studies to significantly affect the progression of IRI with age.
 
 **IRI<sub>0</sub>, AADT, cracks, rutting, participation, temperature, change of temperature, maintenance (one-hot)**
 
-Predict:
+Predict: **IRI**
 
-**IRI**
 
 ## Model
 pytorch
 
-
+Highway agencies use [IRI thresholds](https://www.fhwa.dot.gov/policyinformation/pubs/hf/pl11028/chapter7.cfm) to characterize road condition; for example, in the United States, an IRI of less than 95 in/mi (1.50 m/km) is generally considered by the Federal Highway Administration to be in "good" condition, an IRI from 96 to 170 in/mi (1.51 to 2.68 m/km) is considered "acceptable", and an IRI exceeding 170 in/mile (2.68 m/km) is considered "poor".
 
 ## Result
 compare some models: RNN, LSTM, MLP
