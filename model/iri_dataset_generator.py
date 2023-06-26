@@ -14,8 +14,8 @@ class IRIDataset(Dataset):
         self.__seq_length = seq_length
         self.__padding_value = padding_value
 
-        self.__inputs = []
-        self.__outputs = []
+        self._inputs = []
+        self._outputs = []
 
         # This will split each sequence (SHRP_ID, STATE_CODE) into sequences of length seq_length
         # that contain between 1 and seq_length-1 rows from the original dataset
@@ -42,18 +42,37 @@ class IRIDataset(Dataset):
                 inputs[-1, 0] = -1
                 inputs[-1, 1] = -1
 
-                self.__inputs.append(inputs)
-                self.__outputs.append(data.iloc[i-1][['IRI_LEFT_WHEEL_PATH', 'IRI_RIGHT_WHEEL_PATH']].to_numpy(dtype=float))
+                self._inputs.append(inputs)
+                self._outputs.append(data.iloc[i-1][['IRI_LEFT_WHEEL_PATH', 'IRI_RIGHT_WHEEL_PATH']].to_numpy(dtype=float))
             
             data.drop(columns=["VISIT_DATE"], inplace=True)
 
     def __len__(self):
-        return len(self.__inputs)
+        return len(self._inputs)
     
     def __getitem__(self, idx):
-        normalized = self.__inputs.copy()[idx]
-        normalized[:, 2] = normalized[:, 2] / max_time_delta
-        return torch.from_numpy(normalized.T).float(), torch.from_numpy(self.__outputs[idx]).float()
+        normalized = self._inputs.copy()[idx]
+        normalized[:, 2] = normalized[:, 2] # / max_time_delta
+        return torch.from_numpy(normalized.T).float(), torch.from_numpy(self._outputs[idx]).float()
+    
+
+class IRIBucketDataset(IRIDataset):    
+    def __getitem__(self, idx):
+        # mean of the output vector from the parent
+        mean = self._outputs[idx].mean()
+        # the boundries for good, acceptable and poor IRI
+        # good < boundries[0], 
+        # boundries[0] <= acceptable < boundries[1],
+        # boundries[1] <= poor
+        boundries = [1.5, 2.68]
+        target = [0] * 3 # good, acceptable, poor one-hot encoded
+        if mean < boundries[0]:
+            target[0] = 1
+        elif mean < boundries[1]:
+            target[1] = 1
+        else:
+            target[2] = 1
+        return torch.from_numpy(self._inputs[idx].T).float(), torch.tensor(target).float()
 
 def normalize_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
     """
@@ -75,7 +94,8 @@ def mean_center_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
 def load_iri_datasets(seed=42,
                       train_split=0.8,
                       path="./training_data/IRI-only.parquet",
-                      seq_length=10
+                      seq_length=10,
+                      one_hot=False
                       ) -> Tuple[Dataset, Dataset]:    
     global mean_iri, iri_range
     """
@@ -110,13 +130,19 @@ def load_iri_datasets(seed=42,
 
     train_data = pd.merge(sorted_data, train_ids, on=["SHRP_ID", "STATE_CODE"])
     test_data = pd.merge(sorted_data, test_ids, on=["SHRP_ID", "STATE_CODE"])
+
     # Create datasets
-    train_dataset = IRIDataset(train_data, seq_length)
-    test_dataset = IRIDataset(test_data, seq_length)
+    if one_hot:
+        train_dataset = IRIBucketDataset(train_data, seq_length)
+        test_dataset = IRIBucketDataset(test_data, seq_length)
+    else:
+        train_dataset = IRIDataset(train_data, seq_length)
+        test_dataset = IRIDataset(test_data, seq_length)
     return (train_dataset, test_dataset)
 
 
 if __name__ == "__main__":
-    first, _ = load_iri_datasets()
+    first, _ = load_iri_datasets(one_hot=True)
     for i in range(10):
         print(first[i])
+    print("\n\n")
