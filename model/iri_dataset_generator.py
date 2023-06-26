@@ -5,6 +5,8 @@ import torch
 import pandas as pd
 
 max_time_delta = 0
+mean_iri = 0
+iri_range = 0
 
 class IRIDataset(Dataset):
     def __init__(self, data: pd.DataFrame, seq_length=10, padding_value=-1):
@@ -30,15 +32,18 @@ class IRIDataset(Dataset):
             if local_max > max_time_delta:
                 max_time_delta = local_max
 
-            for i in range(1, len(data)):
+            for i in range(2, len(data)):
                 tmp = pd.DataFrame(data.iloc[:i])
                 # Pad the sequence to length seq_length
                 pad = pd.DataFrame(self.__padding_value, index=range(seq_length - len(tmp)), columns=tmp.columns)
                 tmp = pd.concat([pad, tmp])[-seq_length:]
-                # Add the sequence to the inputs
-                self.__inputs.append(tmp[['IRI_LEFT_WHEEL_PATH', 'IRI_RIGHT_WHEEL_PATH', 'RELATIVE_TIME']].to_numpy(dtype=float))
-                # Add the next row to the outputs
-                self.__outputs.append(data.iloc[i][['IRI_LEFT_WHEEL_PATH', 'IRI_RIGHT_WHEEL_PATH']].to_numpy(dtype=float))
+
+                inputs = tmp[['IRI_LEFT_WHEEL_PATH', 'IRI_RIGHT_WHEEL_PATH', 'RELATIVE_TIME']].to_numpy(dtype=float)
+                inputs[-1, 0] = -1
+                inputs[-1, 1] = -1
+
+                self.__inputs.append(inputs)
+                self.__outputs.append(data.iloc[i-1][['IRI_LEFT_WHEEL_PATH', 'IRI_RIGHT_WHEEL_PATH']].to_numpy(dtype=float))
             
             data.drop(columns=["VISIT_DATE"], inplace=True)
 
@@ -50,33 +55,54 @@ class IRIDataset(Dataset):
         normalized[:, 2] = normalized[:, 2] / max_time_delta
         return torch.from_numpy(normalized.T).float(), torch.from_numpy(self.__outputs[idx]).float()
 
+def normalize_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
+    """
+    Normalizes the given columns in the given dataframe to (-1, 1)
+    """
+    for col in columns:
+        df[col] = (df[col] - df[col].min()) / (max(df[col]) - min(df[col]))
+    return df
+
+def mean_center_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
+    """
+    Mean centers the given columns in the given dataframe.
+    """
+    global_mean = df[columns].mean().mean()
+    for col in columns:
+        df[col] = df[col] - global_mean
+    return df
+
 def load_iri_datasets(seed=42,
                       train_split=0.8,
                       path="./training_data/IRI-only.parquet",
                       seq_length=10
-                      ) -> Tuple[Dataset, Dataset]:
+                      ) -> Tuple[Dataset, Dataset]:    
+    global mean_iri, iri_range
     """
     Loads the IRI dataset and returns it as train and test pytorch datasets.
     """
     raw_data = pd.read_parquet(path)
-    # set NANs to -1
-    raw_data.fillna(-1, inplace=True)
+    raw_data.fillna(1, inplace=True)
+
     # Group by SHRP_ID and STATE_CODE
     grouped_data = raw_data.groupby(["SHRP_ID", "STATE_CODE"], as_index=False)
-    # Sort by date
+
+    # Sorts by date
     sorted_data = grouped_data.apply(
         lambda x: x.sort_values(["VISIT_DATE"], ascending=True))
     sorted_data.reset_index(inplace=True)
+
     # Mean Center and Normalize IRI
     mean_iri = (sorted_data["IRI_LEFT_WHEEL_PATH"].mean() + sorted_data["IRI_RIGHT_WHEEL_PATH"].mean()) / 2
-    sorted_data["IRI_LEFT_WHEEL_PATH"] = sorted_data["IRI_LEFT_WHEEL_PATH"].replace(-1, mean_iri) - mean_iri
-    sorted_data["IRI_RIGHT_WHEEL_PATH"] = sorted_data["IRI_RIGHT_WHEEL_PATH"].replace(-1, mean_iri) - mean_iri
+
+
+    sorted_data = mean_center_columns(sorted_data, ["IRI_LEFT_WHEEL_PATH", "IRI_RIGHT_WHEEL_PATH"])
+
     iri_range = max(sorted_data["IRI_LEFT_WHEEL_PATH"].max() - sorted_data["IRI_LEFT_WHEEL_PATH"].min(),
                     sorted_data["IRI_RIGHT_WHEEL_PATH"].max() - sorted_data["IRI_RIGHT_WHEEL_PATH"].min())
-    sorted_data["IRI_LEFT_WHEEL_PATH"] = sorted_data["IRI_LEFT_WHEEL_PATH"] / iri_range
-    sorted_data["IRI_RIGHT_WHEEL_PATH"] = sorted_data["IRI_RIGHT_WHEEL_PATH"] / iri_range
-    print("Mean IRI: ", mean_iri)
-    print("IRI Range: ", iri_range)
+    
+    sorted_data = normalize_columns(sorted_data, ["IRI_LEFT_WHEEL_PATH", "IRI_RIGHT_WHEEL_PATH"])
+
     # Split into train and test
     ids = sorted_data[["SHRP_ID", "STATE_CODE"]].drop_duplicates()
     train_ids = ids.sample(frac=train_split, random_state=seed)
