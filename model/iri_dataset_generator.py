@@ -11,8 +11,9 @@ iri_range = 0
 
 class IRIDataset(Dataset):
     def __init__(self, data: pd.DataFrame, seq_length=10, padding_value=-1):
+        global max_time_delta
+
         self.__raw_data = data
-        self.__seq_length = seq_length
         self.__padding_value = padding_value
 
         self._inputs = []
@@ -21,7 +22,6 @@ class IRIDataset(Dataset):
         # This will split each sequence (SHRP_ID, STATE_CODE) into sequences of length seq_length
         # that contain between 1 and seq_length-1 rows from the original dataset
         main_bar = tqdm(self.__raw_data.groupby(["SHRP_ID", "STATE_CODE"]), leave=False, desc="Generating sequences")
-        global max_time_delta
         for group in main_bar:
             data = group[1].sort_values(["VISIT_DATE"], ascending=True)
             data["RELATIVE_TIME"] = pd.to_datetime(data["VISIT_DATE"])
