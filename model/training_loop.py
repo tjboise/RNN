@@ -3,7 +3,15 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 
-def train_model(model, train, test, loss, optimizer, epochs=20, batch_size=2048, test_every_n=1):
+def train_model(model,
+                train,
+                test,
+                loss,
+                optimizer,
+                epochs=20,
+                batch_size=2048,
+                test_every_n=1,
+                lr_scheduler=None):
     """
         Trains a model using the given loss and optimizer
     """
@@ -34,3 +42,5 @@ def train_model(model, train, test, loss, optimizer, epochs=20, batch_size=2048,
                 test_num_losses += 1
             test_loss = test_losss/test_num_losses
         bar.set_postfix({"Train Loss": avgloss/num_losses, "Test Loss": test_loss})
+        if lr_scheduler is not None:
+            lr_scheduler.step()
