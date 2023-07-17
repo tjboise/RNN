@@ -18,6 +18,7 @@ class IRIDataset(Dataset):
 
         self._inputs = []
         self._outputs = []
+        nskipped = 0
 
         # This will split each sequence (SHRP_ID, STATE_CODE) into sequences of length seq_length
         # that contain between 1 and seq_length-1 rows from the original dataset
@@ -34,24 +35,29 @@ class IRIDataset(Dataset):
                 max_time_delta = local_max
 
             for i in range(2, len(measurement_info)):
-                tmp = pd.DataFrame(measurement_info.iloc[:i])
-                # Pad the sequence to length seq_length
-                pad = pd.DataFrame(self.__padding_value, index=range(seq_length - len(tmp)), columns=tmp.columns)
-                tmp = pd.concat([pad, tmp])[-seq_length:]
+                # If the last element in the sequence is a construction element, skip it
+                if measurement_info.iloc[i-1]['IRI_LEFT_WHEEL_PATH'] <= 0 or measurement_info.iloc[i-1]['IRI_RIGHT_WHEEL_PATH'] <= 0:
+                    nskipped += 1
+                else:
+                    tmp = pd.DataFrame(measurement_info.iloc[:i])
+                    # Pad the sequence to length seq_length
+                    pad = pd.DataFrame(self.__padding_value, index=range(seq_length - len(tmp)), columns=tmp.columns)
+                    tmp = pd.concat([pad, tmp])[-seq_length:]
 
-                inputs = tmp[['IRI_LEFT_WHEEL_PATH',
-                              'IRI_RIGHT_WHEEL_PATH',
-                              'AADT_ALL_VEHIC',
-                              'MEPDG_TRANS_CRACK_LENGTH_AC',
-                              'RELATIVE_TIME',
-                              'IMP_TYPE']].to_numpy(dtype=float)
-                inputs[-1, 0] = -1
-                inputs[-1, 1] = -1
+                    inputs = tmp[['IRI_LEFT_WHEEL_PATH',
+                                'IRI_RIGHT_WHEEL_PATH',
+                                'AADT_ALL_VEHIC',
+                                'MEPDG_TRANS_CRACK_LENGTH_AC',
+                                'RELATIVE_TIME',
+                                'IMP_TYPE']].to_numpy(dtype=float)
+                    inputs[-1, 0] = -1
+                    inputs[-1, 1] = -1
 
-                self._inputs.append(inputs)
-                self._outputs.append(measurement_info.iloc[i-1][['IRI_LEFT_WHEEL_PATH', 'IRI_RIGHT_WHEEL_PATH']].to_numpy(dtype=float))
+                    self._inputs.append(inputs)
+                    self._outputs.append(measurement_info.iloc[i-1][['IRI_LEFT_WHEEL_PATH', 'IRI_RIGHT_WHEEL_PATH']].to_numpy(dtype=float))
             
             measurement_info.drop(columns=["VISIT_DATE"], inplace=True)
+        print(f"Skipped {nskipped} sequences because the last element was a construction element")
 
     def __len__(self):
         return len(self._inputs)
