@@ -14,6 +14,8 @@ Deadline: Aug 1st.
 [results sheets](https://docs.google.com/spreadsheets/d/1pi2ytwYl5SFYpXrMrc1nt_kCFT6fHNUTdzSjcNvStEA/edit?usp=sharing)
 
 ## To do:
+Deadline is next Sunday.
+
 1. The structure of model, using PPT;
 2. results: MSE. R2 fill in the sheets;
-3. model fine-tuning: epochs, learning rate, sequence lenght
+3. Model fine-tuning: epochs, learning rate, sequence lengh;
