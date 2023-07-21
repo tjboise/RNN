@@ -16,6 +16,6 @@ Deadline: Aug 1st.
 ## To do:
 Deadline is next Sunday.
 
-1. The structure of model, using PPT;
+1. The structure of model, using PPT; [an example](https://drive.google.com/drive/folders/1Kw7P4B-bj5MVt_pr8AEQhUe3BINDGKOC)
 2. results: MSE. R2 fill in the sheets;
 3. Model fine-tuning: epochs, learning rate, sequence lengh;
