@@ -15,6 +15,10 @@ def train_model(model,
     """
         Trains a model using the given loss and optimizer
     """
+    results = {}
+    train_losses = []
+    test_losses = []
+    lrs = []
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     train_data = DataLoader(train, batch_size=batch_size, shuffle=True)
@@ -42,5 +46,12 @@ def train_model(model,
                 test_num_losses += 1
             test_loss = test_losss/test_num_losses
         bar.set_postfix({"Train Loss": avgloss/num_losses, "Test Loss": test_loss})
+        train_losses.append(avgloss/num_losses)
+        test_losses.append(test_loss)
+        lrs.append(optimizer.param_groups[0]['lr'])
         if lr_scheduler is not None:
             lr_scheduler.step()
+    results["train_losses"] = train_losses
+    results["test_losses"] = test_losses
+    results["lrs"] = lrs
+    return results
