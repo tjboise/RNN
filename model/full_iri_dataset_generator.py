@@ -36,28 +36,34 @@ class IRIDataset(Dataset):
 
             for i in range(2, len(measurement_info)):
                 # If the last element in the sequence is a construction element, skip it
-                if measurement_info.iloc[i-1]['IRI_LEFT_WHEEL_PATH'] <= 0 or measurement_info.iloc[i-1]['IRI_RIGHT_WHEEL_PATH'] <= 0:
-                    nskipped += 1
-                else:
-                    tmp = pd.DataFrame(measurement_info.iloc[:i])
-                    # Pad the sequence to length seq_length
-                    pad = pd.DataFrame(self.__padding_value, index=range(seq_length - len(tmp)), columns=tmp.columns)
-                    tmp = pd.concat([pad, tmp])[-seq_length:]
+                # if measurement_info.iloc[i-1]['IRI_LEFT_WHEEL_PATH'] <= 0 or measurement_info.iloc[i-1]['IRI_RIGHT_WHEEL_PATH'] <= 0:
+                #     nskipped += 1
+                # else:
+                tmp = pd.DataFrame(measurement_info.iloc[:i])
+                # Pad the sequence to length seq_length
+                pad = pd.DataFrame(self.__padding_value, index=range(seq_length - len(tmp)), columns=tmp.columns)
+                tmp = pd.concat([pad, tmp])[-seq_length:]
+                inputs = tmp[['IRI_LEFT_WHEEL_PATH',
+                            'IRI_RIGHT_WHEEL_PATH',
+                            'AADT_ALL_VEHIC',
+                            'MEPDG_TRANS_CRACK_LENGTH_AC',
+                            'RELATIVE_TIME',
+                            'IMP_TYPE',
+                            'MAX_ANN_HUM_AVG',
+                            'MIN_ANN_HUM_AVG',
+                            'MEAN_ANN_TEMP_AVG',
+                            'FREEZE_THAW_YR',
+                            'TOTAL_ANN_PRECIP',
+                            'TOTAL_SNOWFALL_YR',
+                            'MAX_MEAN_DEPTH_WIRE_REF',
+                            'LAYER_TYPE']].to_numpy(dtype=float)
+                inputs[-1, 0] = -1
+                inputs[-1, 1] = -1
 
-                    inputs = tmp[['IRI_LEFT_WHEEL_PATH',
-                                'IRI_RIGHT_WHEEL_PATH',
-                                'AADT_ALL_VEHIC',
-                                'MEPDG_TRANS_CRACK_LENGTH_AC',
-                                'RELATIVE_TIME',
-                                'IMP_TYPE']].to_numpy(dtype=float)
-                    inputs[-1, 0] = -1
-                    inputs[-1, 1] = -1
-
-                    self._inputs.append(inputs)
-                    self._outputs.append(measurement_info.iloc[i-1][['IRI_LEFT_WHEEL_PATH', 'IRI_RIGHT_WHEEL_PATH']].to_numpy(dtype=float))
+                self._inputs.append(inputs)
+                self._outputs.append(measurement_info.iloc[i-1][['IRI_LEFT_WHEEL_PATH', 'IRI_RIGHT_WHEEL_PATH']].to_numpy(dtype=float))
             
             measurement_info.drop(columns=["VISIT_DATE"], inplace=True)
-        print(f"Skipped {nskipped} sequences because the last element was a construction element")
 
     def __len__(self):
         return len(self._inputs)
@@ -132,21 +138,49 @@ def load_iri_datasets(seed=42,
     mean_iri = (sorted_data["IRI_LEFT_WHEEL_PATH"].mean() + sorted_data["IRI_RIGHT_WHEEL_PATH"].mean()) / 2
     mean_aadt = sorted_data["AADT_ALL_VEHIC"].mean()
     mean_transverse_cracks = sorted_data["MEPDG_TRANS_CRACK_LENGTH_AC"].mean()
+    mean_max_annual_humidity = sorted_data["MAX_ANN_HUM_AVG"].mean()
+    mean_min_annual_humidity = sorted_data["MIN_ANN_HUM_AVG"].mean()
+    mean_mean_annual_temp = sorted_data["MEAN_ANN_TEMP_AVG"].mean()
+    mean_freeze_thaw_cycles = sorted_data["FREEZE_THAW_YR"].mean()
+    mean_total_annual_precipitation = sorted_data["TOTAL_ANN_PRECIP"].mean()
+    mean_total_snowfall = sorted_data["TOTAL_SNOWFALL_YR"].mean()
+    mean_rut = sorted_data["MAX_MEAN_DEPTH_WIRE_REF"].mean()
 
 
     sorted_data = mean_center_columns(sorted_data, ["IRI_LEFT_WHEEL_PATH", "IRI_RIGHT_WHEEL_PATH"], mean_iri)
     sorted_data = mean_center_columns(sorted_data, ["AADT_ALL_VEHIC"], mean_aadt)
     sorted_data = mean_center_columns(sorted_data, ['MEPDG_TRANS_CRACK_LENGTH_AC'], mean_transverse_cracks)
+    sorted_data = mean_center_columns(sorted_data, ['MAX_ANN_HUM_AVG'], mean_max_annual_humidity)
+    sorted_data = mean_center_columns(sorted_data, ['MIN_ANN_HUM_AVG'], mean_min_annual_humidity)
+    sorted_data = mean_center_columns(sorted_data, ['MEAN_ANN_TEMP_AVG'], mean_mean_annual_temp)
+    sorted_data = mean_center_columns(sorted_data, ['FREEZE_THAW_YR'], mean_freeze_thaw_cycles)
+    sorted_data = mean_center_columns(sorted_data, ['TOTAL_ANN_PRECIP'], mean_total_annual_precipitation)
+    sorted_data = mean_center_columns(sorted_data, ['TOTAL_SNOWFALL_YR'], mean_total_snowfall)
+    sorted_data = mean_center_columns(sorted_data, ['MAX_MEAN_DEPTH_WIRE_REF'], mean_rut)
 
     iri_range = max(sorted_data["IRI_LEFT_WHEEL_PATH"].max() - sorted_data["IRI_LEFT_WHEEL_PATH"].min(),
                     sorted_data["IRI_RIGHT_WHEEL_PATH"].max() - sorted_data["IRI_RIGHT_WHEEL_PATH"].min())
     aadt_range = sorted_data["AADT_ALL_VEHIC"].max() - sorted_data["AADT_ALL_VEHIC"].min()
     transverse_cracking_range = sorted_data["MEPDG_TRANS_CRACK_LENGTH_AC"].max() - sorted_data["MEPDG_TRANS_CRACK_LENGTH_AC"].min()
+    max_annual_humidity_range = sorted_data["MAX_ANN_HUM_AVG"].max() - sorted_data["MAX_ANN_HUM_AVG"].min()
+    min_annual_humidity_range = sorted_data["MIN_ANN_HUM_AVG"].max() - sorted_data["MIN_ANN_HUM_AVG"].min()
+    mean_annual_temp_range = sorted_data["MEAN_ANN_TEMP_AVG"].max() - sorted_data["MEAN_ANN_TEMP_AVG"].min()
+    freeze_thaw_cycles_range = sorted_data["FREEZE_THAW_YR"].max() - sorted_data["FREEZE_THAW_YR"].min()
+    total_annual_precipitation_range = sorted_data["TOTAL_ANN_PRECIP"].max() - sorted_data["TOTAL_ANN_PRECIP"].min()
+    total_snowfall_range = sorted_data["TOTAL_SNOWFALL_YR"].max() - sorted_data["TOTAL_SNOWFALL_YR"].min()
+    rut_range = sorted_data["MAX_MEAN_DEPTH_WIRE_REF"].max() - sorted_data["MAX_MEAN_DEPTH_WIRE_REF"].min()
     
     
     sorted_data = normalize_columns(sorted_data, ["IRI_LEFT_WHEEL_PATH", "IRI_RIGHT_WHEEL_PATH"], iri_range)
     sorted_data = normalize_columns(sorted_data, ["AADT_ALL_VEHIC"], aadt_range)
     sorted_data = normalize_columns(sorted_data, ["MEPDG_TRANS_CRACK_LENGTH_AC"], transverse_cracking_range)
+    sorted_data = normalize_columns(sorted_data, ["MAX_ANN_HUM_AVG"], max_annual_humidity_range)
+    sorted_data = normalize_columns(sorted_data, ["MIN_ANN_HUM_AVG"], min_annual_humidity_range)
+    sorted_data = normalize_columns(sorted_data, ["MEAN_ANN_TEMP_AVG"], mean_annual_temp_range)
+    sorted_data = normalize_columns(sorted_data, ["FREEZE_THAW_YR"], freeze_thaw_cycles_range)
+    sorted_data = normalize_columns(sorted_data, ["TOTAL_ANN_PRECIP"], total_annual_precipitation_range)
+    sorted_data = normalize_columns(sorted_data, ["TOTAL_SNOWFALL_YR"], total_snowfall_range)
+    sorted_data = normalize_columns(sorted_data, ["MAX_MEAN_DEPTH_WIRE_REF"], rut_range)
 
     # Split into train and test
     ids = sorted_data[["SHRP_ID", "STATE_CODE"]].drop_duplicates()
