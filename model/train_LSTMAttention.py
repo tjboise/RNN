@@ -64,7 +64,7 @@ for SEQUENCE_LENGTH in pbar_SEQUENCE_LENGTH:
                 model = LSTMAttention()
                 loss = nn.MSELoss()
                 optimizer = torch.optim.Adam(model.parameters(), lr=LR)
-                lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=CURRENT_DROPOUT)
+                lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.8)
                 train_info = train_model(model, train, test, loss, optimizer, epochs=MAX_EPOCHS, test_every_n=1, batch_size=512, lr_scheduler=lr_scheduler)
                 torch.save(model.state_dict(), f"{MODEL_FOLDER}/{SEQUENCE_LENGTH}_{NUM_LAYERS}_{LR}_{CURRENT_DROPOUT}.pth")
                 with open(f"{MODEL_FOLDER}/{SEQUENCE_LENGTH}_{NUM_LAYERS}_{LR}_{CURRENT_DROPOUT}.json", "w") as f:
