@@ -35,7 +35,7 @@ class LSTMAttention(nn.Module):
 
 POSSIBLE_SEQUENCE_LENGTHS = [2,3,5,10]
 POSSIBLE_LR = [0.01, 0.001, 0.0001]
-DROPOUT = [0.1, 0.25, 0.5]
+POSSIBLE_DROPOUTS = [0.1, 0.25, 0.5]
 POSSIBLE_NUM_LAYERS = [2,3,4,5]
 MAX_EPOCHS = 200
 MODEL_FOLDER = ".tuning/LSTMAttention"
@@ -52,7 +52,7 @@ for SEQUENCE_LENGTH in pbar_SEQUENCE_LENGTH:
     pbar_LR = tqdm(POSSIBLE_LR, leave=False)
     for LR in pbar_LR:
         pbar_LR.set_description(f'LR: {LR}')        
-        pbar_DROP = tqdm(DROPOUT, leave=False)
+        pbar_DROP = tqdm(POSSIBLE_DROPOUTS, leave=False)
         for CURRENT_DROPOUT in pbar_DROP:
             pbar_DROP.set_description(f'Heads: {CURRENT_DROPOUT}')
             pbar_NUM_LAYERS = tqdm(POSSIBLE_NUM_LAYERS, leave=False)
