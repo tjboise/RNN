@@ -25,6 +25,7 @@ def train_model(model,
     test_r2s = []
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
+    model.train()
     train_data = DataLoader(train, batch_size=batch_size, shuffle=True)
     bar = tqdm(range(epochs), desc="Training Epoch", leave=False)
     test_loss=0
