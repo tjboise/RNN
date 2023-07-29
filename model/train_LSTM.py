@@ -80,11 +80,11 @@ for file in tqdm(os.listdir(MODEL_FOLDER), leave=False):
     if file.endswith(".json"):
         with open(f"{MODEL_FOLDER}/{file}", "r") as f:
             train_info = json.load(f)
-            if train_info["train_losses"][-1] < current_lowest_loss:
-                current_lowest_loss = train_info["train_losses"][-1]
+            if train_info["test_losses"][-1] < current_lowest_loss:
+                current_lowest_loss = train_info["test_losses"][-1]
                 lowest_loss = file
-            if train_info["train_r2s"][-1] > current_highest_r2:
-                current_highest_r2 = train_info["train_r2s"][-1]
+            if train_info["test_r2s"][-1] > current_highest_r2:
+                current_highest_r2 = train_info["test_r2s"][-1]
                 highest_r2 = file
 
 print(f"Lowest Loss: {current_lowest_loss} in {lowest_loss}")
