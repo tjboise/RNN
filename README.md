@@ -19,3 +19,6 @@ Deadline is next Sunday.
 1. The structure of model, using PPT; [an example](https://drive.google.com/file/d/1ejwWz1p8vnJlg5Ko-gDW7QIApUGhTLHx/view?usp=sharing)
 2. results: MSE. R2 fill in the sheets;
 3. Model fine-tuning: epochs, learning rate, sequence lengh;
+
+---
+The standard feedforward neural network takes the input data points as independent, without considering the correlations between the input data. This limitation makes the feedforward NN not suitable for modeling sequential data.
