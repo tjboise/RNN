@@ -1,11 +1,5 @@
-### To do:
 
-1. determine the schedule;
-2. decide what predictors be used to predict the rutting, make sure the data can be extracted from LTPP;
-3. 
-
-
-# Preliminary Schedule
+# To do:
 
 Week No.
 1. decide what predictors be used to predict the rutting, make sure the data can be extracted from LTPP;
