@@ -7,6 +7,20 @@ Week No.
 - [ ] Data Selection
 - [ ] Data Download Procedure (md)
 
+Meeting(Sept.22): 
+
+Overview: 
+what is it? 
+why we want to do that?
+How we could do?
+
+Data: 
+What indicator might impact the rutting? 
+
+
+
+
+
 2. Data preprocessing
 
 - [ ] Data Preprocessing
