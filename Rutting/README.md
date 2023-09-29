@@ -43,6 +43,8 @@ Rutting depth can be used a term to represent the rutting.
 3. Model
 
 - [ ] Implement Model (PyTorch 2)
+- [ ] Use LSTM
+- [ ] Try Tranformer/Informer Model
 - [ ] Run Preliminary Training
 - [ ] Some form of evaluation / results
 
