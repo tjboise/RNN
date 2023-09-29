@@ -39,11 +39,13 @@ Rutting depth can be used a term to represent the rutting.
 2. Data preprocessing
 
 - [ ] Data Preprocessing
+- [ ]   Try an only use full data sequences
+- [ ]   Try with what we have
 
 3. Model
 
 - [ ] Implement Model (PyTorch 2)
-- [ ] Use LSTM
+- [ ] Use LSTM at first for validation
 - [ ] Try Tranformer/Informer Model
 - [ ] Run Preliminary Training
 - [ ] Some form of evaluation / results
