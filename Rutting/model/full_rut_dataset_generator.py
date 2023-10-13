@@ -105,7 +105,7 @@ def mean_center_columns(df: pd.DataFrame, columns: list, mean_iri: float) -> pd.
         df[col] = df[col] - mean_iri
     return df
 
-def load_iri_datasets(seed=42,
+def load_rut_datasets(seed=42,
                       train_split=0.8,
                       path="./training_data/final_data.parquet",
                       construction_path="./training_data/construction_data.parquet",
@@ -114,7 +114,7 @@ def load_iri_datasets(seed=42,
                       ) -> Tuple[Dataset, Dataset]:    
     global mean_iri, iri_range
     """
-    Loads the IRI dataset and returns it as train and test pytorch datasets.
+    Loads the RUT dataset and returns it as train and test pytorch datasets.
     """
     raw_data = pd.read_parquet(path)
 
@@ -200,6 +200,6 @@ def load_iri_datasets(seed=42,
 
 
 if __name__ == "__main__":
-    tmp = load_iri_datasets()
-    for i in range(10):
+    tmp = load_rut_datasets()
+    for i in range(100):
         print(tmp[0][i])
