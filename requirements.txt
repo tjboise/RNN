@@ -64,3 +64,8 @@ tzdata==2023.3
 urllib3 
 wcwidth==0.2.6
 win-inet-pton 
+pyarrow 
+fastparquet
+scikit-learn
+matplotlib
+torcheval
