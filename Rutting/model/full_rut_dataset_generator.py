@@ -20,9 +20,11 @@ class IRIDataset(Dataset):
         self._outputs = []
         nskipped = 0
 
-        if parquet is not False:            
-            self._inputs = pd.read_parquet(parquet + "_inputs.parquet").to_numpy(dtype=float)
-            self._outputs = pd.read_parquet(parquet + "_outputs.parquet").to_numpy(dtype=float)
+        if parquet is not False:  
+            metadata = pd.read_parquet(parquet + "_metadata.parquet")        
+            for i in tqdm(range(metadata["length"]), desc="Loading from parquet"):
+                self._inputs.append(pd.read_parquet(parquet + f"_inputs_{i}.parquet").to_numpy(dtype=float))
+                self._outputs.append(pd.read_parquet(parquet + f"_outputs_{i}.parquet").to_numpy(dtype=float))
 
         # This will split each sequence (SHRP_ID, STATE_CODE) into sequences of length seq_length
         # that contain between 1 and seq_length-1 rows from the original dataset
@@ -75,8 +77,13 @@ class IRIDataset(Dataset):
         return torch.from_numpy(self._inputs[idx].T).float(), torch.from_numpy(self._outputs[idx]).float()
     
     def to_parquet(self, path):
-        pd.DataFrame(self._inputs).to_parquet(path + "_inputs.parquet")
-        pd.DataFrame(self._outputs).to_parquet(path + "_outputs.parquet")
+        for i in tqdm(range(len(self._inputs)), desc="Saving to parquet"):
+            # write a parquet file for each sequence
+            pd.DataFrame(self._inputs[i]).to_parquet(path + f"_inputs_{i}.parquet", index=False)
+            pd.DataFrame(self._outputs[i]).to_parquet(path + f"_outputs_{i}.parquet", index=False) 
+        #write metadata file. This file contains the number of sequences and the length of each sequence
+        pd.DataFrame({"length": len(self._inputs), "seq_length": len(self._inputs[0])}).to_parquet(path + "_metadata.parquet", index=False)
+
     
 
 class IRIBucketDataset(IRIDataset):    
@@ -217,8 +224,8 @@ def load_rut_datasets(seed=42,
             test_dataset = IRIDataset(test_data, seq_length)
 
         #save cache files
-        train_dataset.to_parquet("./training_data/train_" + cache_file_name)
-        test_dataset.to_parquet("./training_data/test_" + cache_file_name)
+        # train_dataset.to_parquet("./training_data/train_" + cache_file_name)
+        # test_dataset.to_parquet("./training_data/test_" + cache_file_name)
 
         return (train_dataset, test_dataset)
 
