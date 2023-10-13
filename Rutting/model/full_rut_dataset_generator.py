@@ -10,7 +10,7 @@ mean_iri = 0
 iri_range = 0
 
 class IRIDataset(Dataset):
-    def __init__(self, measurement_info : pd.DataFrame, seq_length=10, padding_value=-1):
+    def __init__(self, measurement_info : pd.DataFrame = None, seq_length=10, padding_value=-1, parquet=False):
         global max_time_delta
 
         self.__raw_data = measurement_info
@@ -19,6 +19,10 @@ class IRIDataset(Dataset):
         self._inputs = []
         self._outputs = []
         nskipped = 0
+
+        if parquet is not False:            
+            self._inputs = pd.read_parquet(parquet + "_inputs.parquet").to_numpy(dtype=float)
+            self._outputs = pd.read_parquet(parquet + "_outputs.parquet").to_numpy(dtype=float)
 
         # This will split each sequence (SHRP_ID, STATE_CODE) into sequences of length seq_length
         # that contain between 1 and seq_length-1 rows from the original dataset
@@ -70,6 +74,10 @@ class IRIDataset(Dataset):
     def __getitem__(self, idx):
         return torch.from_numpy(self._inputs[idx].T).float(), torch.from_numpy(self._outputs[idx]).float()
     
+    def to_parquet(self, path):
+        pd.DataFrame(self._inputs).to_parquet(path + "_inputs.parquet")
+        pd.DataFrame(self._outputs).to_parquet(path + "_outputs.parquet")
+    
 
 class IRIBucketDataset(IRIDataset):    
     def __getitem__(self, idx):
@@ -120,9 +128,8 @@ def load_rut_datasets(seed=42,
     try:
         print("Loading cached data:")
         print("train_" + cache_file_name)
-        train_dataset = pd.read_parquet("./training_data/train_" + cache_file_name)
-        print("test_" + cache_file_name)
-        test_dataset = pd.read_parquet("./training_data/test_" + cache_file_name)
+        test_dataset = IRIDataset(parquet="./training_data/test_" + cache_file_name)
+        train_dataset = IRIDataset(parquet="./training_data/train_" + cache_file_name)
         return (train_dataset, test_dataset)
 
     except FileNotFoundError:
