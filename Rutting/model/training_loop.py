@@ -5,6 +5,12 @@ import torch.nn as nn
 from sklearn.metrics import r2_score
 import numpy as np
 
+# if windows import directml backend for pytorch
+try:
+    import torch_directml
+except:
+    pass
+
 def train_model(model,
                 train,
                 test,
@@ -24,6 +30,9 @@ def train_model(model,
     train_r2s = []
     test_r2s = []
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if torch_directml != None and torch_directml.is_available():
+        device = torch_directml.device()
+    print("Using device: ", device)
     model.to(device)
     model.train()
     train_data = DataLoader(train, batch_size=batch_size, shuffle=True)
